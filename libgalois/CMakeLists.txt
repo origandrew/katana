@@ -40,7 +40,6 @@ set(sources
         src/PtrLock.cpp
         src/SharedMem.cpp
         src/SharedMemSys.cpp
-        src/SimpleLock.cpp
         src/Statistics.cpp
         src/Support.cpp
         src/Termination.cpp

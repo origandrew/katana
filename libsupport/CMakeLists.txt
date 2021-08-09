@@ -27,10 +27,27 @@ set(sources
         src/Plugin.cpp
         src/ProgressTracer.cpp
         src/Signals.cpp
+        src/SimpleLock.cpp        
         src/Strings.cpp
         src/TextTracer.cpp
         src/URI.cpp
 )
+
+find_package(phmap QUIET)
+if(NOT TARGET phmap::phmap)
+  include(CheckIncludeFileCXX)
+  unset(phmap_FOUND)
+  CHECK_INCLUDE_FILE_CXX(parallel_hashmap/phmap.h phmap_FOUND)
+  if (phmap_FOUND)
+  # Since the include is directly available due to the above check, an empty target is enough.
+  add_library(phmap::phmap INTERFACE IMPORTED)
+  endif()
+endif()
+If (NOT TARGET phmap::phmap)
+  message(SEND_ERROR "Required parallel_hashmap/phmap.h is missing.  Install parallel-hashmap, also called phmap")
+endif()
+
+target_link_libraries(katana_support PUBLIC phmap::phmap)
 
 target_sources(katana_support PRIVATE ${sources})
 
