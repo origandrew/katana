@@ -1,12 +1,15 @@
 #ifndef KATANA_LIBTSUBA_TSUBA_CACHE_H_
 #define KATANA_LIBTSUBA_TSUBA_CACHE_H_
 
-// Inspired by boost LRU cache, https://www.boost.org/doc/libs/1_76_0/boost/compute/detail/lru_cache.hpp
+// Implements a cache with an LRU replacement policy and a max size replacement
+// policy.  Can be configured to call back with an evicted key.
 
 #include <list>
 #include <optional>
 #include <string>
 #include <utility>
+
+#include <arrow/chunked_array.h>
 
 #include "katana/ArrowInterchange.h"
 #include "katana/ConcurrentMap.h"
@@ -177,6 +180,8 @@ private:
   std::function<void(const KeyBase& key)> evict_cb_;
   std::function<size_t(const Value& value)> value_to_bytes_;
 };
+
+using PropertyCache = Cache<std::shared_ptr<arrow::ChunkedArray>>;
 
 }  // namespace tsuba
 

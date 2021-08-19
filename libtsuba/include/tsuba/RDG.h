@@ -13,6 +13,7 @@
 #include "katana/Result.h"
 #include "katana/URI.h"
 #include "katana/config.h"
+#include "tsuba/Cache.h"
 #include "tsuba/Errors.h"
 #include "tsuba/FileFrame.h"
 #include "tsuba/FileView.h"
@@ -141,7 +142,9 @@ public:
   void AddLineage(const std::string& command_line);
 
   /// Load the RDG described by the metadata in handle into memory.
-  static katana::Result<RDG> Make(RDGHandle handle, const RDGLoadOptions& opts);
+  static katana::Result<RDG> Make(
+      RDGHandle handle, const RDGLoadOptions& opts,
+      PropertyCache* cache = nullptr);
 
   katana::Result<void> UnbindTopologyFileStorage();
 
@@ -251,7 +254,8 @@ private:
       const katana::Uri& metadata_dir);
 
   static katana::Result<RDG> Make(
-      const RDGManifest& manifest, const RDGLoadOptions& opts);
+      const RDGManifest& manifest, const RDGLoadOptions& opts,
+      PropertyCache* cache);
 
   katana::Result<void> AddPartitionMetadataArray(
       const std::shared_ptr<arrow::Table>& props);
@@ -268,6 +272,8 @@ private:
   //
 
   std::unique_ptr<RDGCore> core_;
+  // Optional property cache
+  PropertyCache* cache_{nullptr};
 
   std::vector<std::shared_ptr<arrow::ChunkedArray>> mirror_nodes_;
   std::vector<std::shared_ptr<arrow::ChunkedArray>> master_nodes_;

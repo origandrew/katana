@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include <arrow/array/concatenate.h>
+#include <arrow/chunked_array.h>
 
 #include "katana/Random.h"
 
@@ -117,6 +118,16 @@ katana::DiffFormatTo(
 uint64_t
 katana::ApproxArrayMemUse(const std::shared_ptr<arrow::Array>& array) {
   return ApproxArrayDataMemUse(array->data());
+}
+
+uint64_t
+katana::ApproxChunkedArrayMemUse(
+    const std::shared_ptr<arrow::ChunkedArray>& ca) {
+  uint64_t total = 0;
+  for (const auto& arr : ca->chunks()) {
+    total += ApproxArrayMemUse(arr);
+  }
+  return total;
 }
 
 uint64_t

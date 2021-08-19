@@ -16,6 +16,7 @@
 #include "katana/NUMAArray.h"
 #include "katana/PropertyIndex.h"
 #include "katana/config.h"
+#include "tsuba/Cache.h"
 #include "tsuba/RDG.h"
 
 namespace katana {
@@ -277,7 +278,8 @@ public:
   /// Make a property graph from an RDG name.
   static Result<std::unique_ptr<PropertyGraph>> Make(
       const std::string& rdg_name,
-      const tsuba::RDGLoadOptions& opts = tsuba::RDGLoadOptions());
+      const tsuba::RDGLoadOptions& opts = tsuba::RDGLoadOptions(),
+      tsuba::PropertyCache* cache = nullptr);
 
   /// Make a property graph from topology
   static Result<std::unique_ptr<PropertyGraph>> Make(

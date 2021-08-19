@@ -299,6 +299,12 @@ KATANA_EXPORT void DiffFormatTo(
 KATANA_EXPORT uint64_t
 ApproxArrayMemUse(const std::shared_ptr<arrow::Array>& array);
 
+/// Estimate the amount of memory this chunked array is using
+/// n.b. Estimate is best effort when array is a slice or a variable type like
+///   large_string; it will be an upper bound in those cases
+KATANA_EXPORT uint64_t
+ApproxChunkedArrayMemUse(const std::shared_ptr<arrow::ChunkedArray>& ca);
+
 /// Estimate the amount of memory this table is using
 /// n.b. Estimate is best effort when an array is a slice or a variable type like
 ///   large_string; it will be an upper bound in those cases

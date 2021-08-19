@@ -465,7 +465,9 @@ tsuba::RDG::DoMake(
 }
 
 katana::Result<tsuba::RDG>
-tsuba::RDG::Make(const RDGManifest& manifest, const RDGLoadOptions& opts) {
+tsuba::RDG::Make(
+    const RDGManifest& manifest, const RDGLoadOptions& opts,
+    PropertyCache* cache) {
   uint32_t partition_id_to_load =
       opts.partition_id_to_load.value_or(Comm()->ID);
 
@@ -478,6 +480,7 @@ tsuba::RDG::Make(const RDGManifest& manifest, const RDGLoadOptions& opts) {
   }
 
   RDG rdg(std::make_unique<RDGCore>(std::move(part_header_res.value())));
+  rdg.cache_ = cache;
 
   std::vector<PropStorageInfo*> node_props = KATANA_CHECKED(
       rdg.core_->part_header().SelectNodeProperties(opts.node_properties));
@@ -508,12 +511,13 @@ tsuba::RDG::Equals(const RDG& other) const {
 }
 
 katana::Result<tsuba::RDG>
-tsuba::RDG::Make(RDGHandle handle, const RDGLoadOptions& opts) {
+tsuba::RDG::Make(
+    RDGHandle handle, const RDGLoadOptions& opts, PropertyCache* cache) {
   if (!handle.impl_->AllowsRead()) {
     return KATANA_ERROR(
         ErrorCode::InvalidArgument, "handle does not allow full read");
   }
-  return Make(handle.impl_->rdg_manifest(), opts);
+  return Make(handle.impl_->rdg_manifest(), opts, cache);
 }
 
 katana::Result<void>

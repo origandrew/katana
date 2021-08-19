@@ -339,9 +339,9 @@ katana::PropertyGraph::Make(
 
 katana::Result<std::unique_ptr<katana::PropertyGraph>>
 MakePropertyGraph(
-    std::unique_ptr<tsuba::RDGFile> rdg_file,
-    const tsuba::RDGLoadOptions& opts) {
-  auto rdg_result = tsuba::RDG::Make(*rdg_file, opts);
+    std::unique_ptr<tsuba::RDGFile> rdg_file, const tsuba::RDGLoadOptions& opts,
+    tsuba::PropertyCache* cache) {
+  auto rdg_result = tsuba::RDG::Make(*rdg_file, opts, cache);
   if (!rdg_result) {
     return rdg_result.error();
   }
@@ -352,14 +352,15 @@ MakePropertyGraph(
 
 katana::Result<std::unique_ptr<katana::PropertyGraph>>
 katana::PropertyGraph::Make(
-    const std::string& rdg_name, const tsuba::RDGLoadOptions& opts) {
+    const std::string& rdg_name, const tsuba::RDGLoadOptions& opts,
+    tsuba::PropertyCache* cache) {
   auto handle = tsuba::Open(rdg_name, tsuba::kReadWrite);
   if (!handle) {
     return handle.error();
   }
 
   return MakePropertyGraph(
-      std::make_unique<tsuba::RDGFile>(handle.value()), opts);
+      std::make_unique<tsuba::RDGFile>(handle.value()), opts, cache);
 }
 
 katana::Result<std::unique_ptr<katana::PropertyGraph>>
