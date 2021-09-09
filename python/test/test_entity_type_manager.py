@@ -4,7 +4,7 @@ import pytest
 def test_node_types(graph):
     types = graph.node_types
     assert {str(t) for t in types} == {
-        "kUnknownName",
+        "UnknownName",
         "Comment",
         "Tag",
         "City",

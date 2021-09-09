@@ -10,6 +10,7 @@
 
 #include <arrow/array/array_primitive.h>
 #include <arrow/table.h>
+#include <boost/container_hash/hash.hpp>
 
 #include "katana/Logging.h"
 #include "katana/Result.h"
@@ -22,7 +23,7 @@ namespace katana {
 /// EntityTypeID is represented using 8 bits
 using EntityTypeID = uint8_t;
 static constexpr EntityTypeID kUnknownEntityType = EntityTypeID{0};
-static constexpr std::string_view kUnknownEntityTypeName = "kUnknownName";
+static constexpr std::string_view kUnknownEntityTypeName = "UnknownName";
 static constexpr EntityTypeID kInvalidEntityType =
     std::numeric_limits<EntityTypeID>::max();
 /// A set of EntityTypeIDs
@@ -39,6 +40,20 @@ using AtomicTypeNameToEntityTypeIDMap =
 using EntityTypeIDToAtomicTypeNameMap =
     std::unordered_map<EntityTypeID, std::string>;
 using TypeNameSet = std::set<std::string>;
+// Hash function when TypeNameSet is a key
+struct TypeNameSetHash {
+  std::size_t operator()(const TypeNameSet& tns) const {
+    using boost::hash_combine;
+    using boost::hash_value;
+
+    std::size_t seed = 0;
+    for (const auto& str : tns) {
+      hash_combine(seed, hash_value(str));
+    }
+    // Return the result.
+    return seed;
+  }
+};
 
 class KATANA_EXPORT EntityTypeManager {
   // TODO (scober): add iterator over all types
@@ -178,6 +193,8 @@ public:
   template <typename Container>
   Result<EntityTypeID> GetOrAddNonAtomicEntityTypeFromStrings(
       const Container& names) {
+    // An empty set is not a valid type name
+    KATANA_LOG_ASSERT(!names.empty());
     // We cannot use KATANA_CHECKED here because nvcc cannot handle it.
     auto res = GetOrAddEntityTypeIDs(names);
     if (!res) {
@@ -389,6 +406,9 @@ public:
   /// std::string ReportDiff() IS A TESTING ONLY FUNCTION, DO NOT EXPOSE THIS TO THE USER
   std::string ReportDiff(const EntityTypeManager& other) const;
 
+  /// std::string PrintTypes() IS A TESTING ONLY FUNCTION, DO NOT EXPOSE THIS TO THE USER
+  std::string PrintTypes() const;
+
 private:
   // Used by AssignEntityTypeIDsFromProperties()
   template <typename ArrowType>
@@ -414,7 +434,7 @@ private:
   void Init() {
     // assume kUnknownEntityType is 0
     static_assert(kUnknownEntityType == 0);
-    static_assert(kUnknownEntityTypeName == std::string_view("kUnknownName"));
+    static_assert(kUnknownEntityTypeName == std::string_view("UnknownName"));
     // add kUnknownEntityType
     auto id = AddAtomicEntityType(std::string(kUnknownEntityTypeName));
     KATANA_LOG_ASSERT(id.value() == kUnknownEntityType);
@@ -445,3 +465,13 @@ private:
 };
 
 }  // namespace katana
+
+// Allow TypeNameSet foo; fmt::print("{}\n", foo);
+template <>
+struct KATANA_EXPORT fmt::formatter<katana::TypeNameSet>
+    : formatter<std::string> {
+  template <typename FormatContext>
+  auto format(const katana::TypeNameSet& tns, FormatContext& ctx) {
+    return format_to(ctx.out(), "{}", fmt::join(tns, ", "));
+  }
+};
