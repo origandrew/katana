@@ -9,9 +9,9 @@
 
 #include <arrow/memory_pool.h>
 
+#include "katana/Logging.h"
 #include "katana/Random.h"
 #include "katana/Time.h"
-#include "katana/Logging.h"
 
 namespace {
 
