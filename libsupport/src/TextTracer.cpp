@@ -15,7 +15,7 @@
 
 namespace {
 
-std::mutex output_mutex;
+[[maybe_unused]] std::mutex output_mutex;
 
 std::string
 GetHostStatsText() {
