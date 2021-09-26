@@ -11,6 +11,7 @@
 
 #include "katana/Random.h"
 #include "katana/Time.h"
+#include "katana/Logging.h"
 
 namespace {
 
@@ -76,8 +77,9 @@ BuildText(
 
 void
 OutputText(const std::string& output) {
-  std::lock_guard<std::mutex> lock(output_mutex);
-  std::cerr << output;
+  // std::lock_guard<std::mutex> lock(output_mutex);
+  // std::cerr << output;
+  KATANA_LOG_DEBUG("{}", output);
 }
 
 }  // namespace
