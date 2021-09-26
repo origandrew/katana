@@ -76,7 +76,7 @@ BuildText(
 }
 
 void
-OutputText(const std::string& output) {
+OutputText([[maybe_unused]] const std::string& output) {
   // std::lock_guard<std::mutex> lock(output_mutex);
   // std::cerr << output;
   KATANA_LOG_DEBUG("{}", output);
